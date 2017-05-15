@@ -62,6 +62,9 @@ public class CreateFileActivity extends BaseDemoActivity {
                     OutputStream outputStream = driveContents.getOutputStream();
                     Writer writer = new OutputStreamWriter(outputStream);
                     try {
+                        //
+                        //todo there is the place where we gonna need to get data for backup
+                        //
                         writer.write("Hello World!");
                         writer.close();
                     } catch (IOException e) {

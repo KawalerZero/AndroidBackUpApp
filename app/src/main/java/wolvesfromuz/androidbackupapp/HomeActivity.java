@@ -19,6 +19,7 @@ public class HomeActivity extends Activity {
     private final Class[] sActivities = new Class[] {
             CreateFileActivity.class,
             ListFilesActivity.class,
+            RetrieveContentsWithProgressDialogActivity.class,
     };
 
     private ListView mListViewSamples;
@@ -41,5 +42,4 @@ public class HomeActivity extends Activity {
             }
         });
     }
-
 }

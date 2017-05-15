@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">AndroidBackUpApp</string>
+    <string name="download_progress">Download Progress:</string>
 </resources>

@@ -3,5 +3,6 @@
     <string-array name="titles_array">
         <item>Create a file</item>
         <item>List files with pagination</item>
+        <item>Listen download progress</item>
     </string-array>
 </resources>
