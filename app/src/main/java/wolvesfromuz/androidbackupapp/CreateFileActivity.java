@@ -16,6 +16,9 @@ package wolvesfromuz.androidbackupapp;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
@@ -35,12 +38,19 @@ import java.io.Writer;
 public class CreateFileActivity extends BaseDemoActivity {
 
     private static final String TAG = "CreateFileActivity";
+    private ImageView uploadingImage;
+    private Animation rotateAnimation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create);
+
+        uploadingImage = (ImageView) findViewById(R.id.uploading_image);
+        rotateAnimation = AnimationUtils.loadAnimation(getBaseContext(), R.anim.rotate);
+
+        uploadingImage.startAnimation(rotateAnimation);
     }
 
     @Override
