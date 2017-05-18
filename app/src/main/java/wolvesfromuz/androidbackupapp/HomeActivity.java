@@ -4,40 +4,68 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-
+import android.widget.Button;
+import android.widget.ImageView;
 
 /**
  * An activity to list all available demo activities.
  */
-public class HomeActivity extends Activity {
+public class HomeActivity extends Activity  {
 
-    @SuppressWarnings("rawtypes")
-    private final Class[] sActivities = new Class[] {
-            CreateFileActivity.class,
-            ListFilesActivity.class,
-            RetrieveContentsWithProgressDialogActivity.class,
-    };
+    private Button createBackupButton;
+    private Button listOfBackupButton;
+    private Button uploadBackupButton;
 
-    private ListView mListViewSamples;
+    private ImageView createBackupImage;
+    private ImageView listOfBackupsImage;
+    private ImageView uploadBackupImage;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onResume()
+    {
+        super.onResume();
+        createBackupImage.setImageResource(R.drawable.create_backup);
+        listOfBackupsImage.setImageResource(R.drawable.list_of_buckups);
+        uploadBackupImage.setImageResource(R.drawable.upload_buckup);
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        String[] titles = getResources().getStringArray(R.array.titles_array);
-        mListViewSamples = (ListView) findViewById(R.id.listViewSamples);
-        mListViewSamples.setAdapter(
-                new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, titles));
-        mListViewSamples.setOnItemClickListener(new OnItemClickListener() {
+        createBackupButton = (Button) findViewById(R.id.create_backup_btn);
+        listOfBackupButton = (Button) findViewById(R.id.list_of_backups_btn);
+        uploadBackupButton = (Button) findViewById(R.id.upload_backup_btn);
 
-            @Override
-            public void onItemClick(AdapterView<?> arg0, View arg1, int i, long arg3) {
-                Intent intent = new Intent(getBaseContext(), sActivities[i]);
+        createBackupImage = (ImageView) findViewById(R.id.create_backup);
+        listOfBackupsImage = (ImageView) findViewById(R.id.list_of_backups);
+        uploadBackupImage = (ImageView) findViewById(R.id.upload_backup);
+
+        createBackupButton.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View view)
+            {
+                createBackupImage.setImageResource(R.drawable.create_backup_enter);
+                Intent intent = new Intent(getBaseContext(), CreateFileActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        listOfBackupButton.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View view)
+            {
+                listOfBackupsImage.setImageResource(R.drawable.list_of_buckups_enter);
+                Intent intent = new Intent(getBaseContext(), ListFilesActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        uploadBackupButton.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View view)
+            {
+                uploadBackupImage.setImageResource(R.drawable.upload_buckup_enter);
+                Intent intent = new Intent(getBaseContext(), RetrieveContentsWithProgressDialogActivity.class);
                 startActivity(intent);
             }
         });
