@@ -19,7 +19,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".CreateFileActivity"></activity>
-        <activity android:name=".ListFilesActivity"></activity>
+        <activity android:name=".ListFilesActivity" android:theme="@style/ListFont"></activity>
         <activity android:name=".RetrieveContentsWithProgressDialogActivity"></activity>
 
         <activity android:name=".StartActivity">

@@ -14,6 +14,7 @@
 
 package wolvesfromuz.androidbackupapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.animation.Animation;
@@ -51,6 +52,24 @@ public class CreateFileActivity extends BaseDemoActivity {
         rotateAnimation = AnimationUtils.loadAnimation(getBaseContext(), R.anim.rotate);
 
         uploadingImage.startAnimation(rotateAnimation);
+        rotateAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                finish();
+                Intent intent = new Intent(CreateFileActivity.this, HomeActivity.class);
+                startActivity(intent);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
     }
 
     @Override
