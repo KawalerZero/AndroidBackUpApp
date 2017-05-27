@@ -18,12 +18,19 @@
         <activity android:name=".HomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity android:name=".CreateFileActivity"></activity>
-        <activity android:name=".ListFilesActivity"></activity>
+        <activity android:name=".ListFilesActivity" android:theme="@style/ListFont"></activity>
         <activity android:name=".RetrieveContentsWithProgressDialogActivity"></activity>
+
+        <activity android:name=".StartActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
 
     </application>
 </manifest>

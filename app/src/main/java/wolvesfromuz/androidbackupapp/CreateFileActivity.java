@@ -14,12 +14,9 @@
 
 package wolvesfromuz.androidbackupapp;
 
-import android.Manifest;
-import android.content.ContentResolver;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveApi.DriveContentsResult;
@@ -38,8 +35,40 @@ import java.io.Writer;
 public class CreateFileActivity extends BaseDemoActivity {
 
     private static final String TAG = "CreateFileActivity";
+    private ImageView uploadingImage;
+    private Animation rotateAnimation;
     private ContactsManager contactsManager;
     private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_create);
+
+        uploadingImage = (ImageView) findViewById(R.id.uploading_image);
+        rotateAnimation = AnimationUtils.loadAnimation(getBaseContext(), R.anim.rotate);
+
+        uploadingImage.startAnimation(rotateAnimation);
+        rotateAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                finish();
+                Intent intent = new Intent(CreateFileActivity.this, HomeActivity.class);
+                startActivity(intent);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+    }
 
     @Override
     public void onConnected(Bundle connectionHint) {
