@@ -14,16 +14,18 @@
 
 package wolvesfromuz.androidbackupapp;
 
+import android.Manifest;
+import android.content.ContentResolver;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveApi.DriveContentsResult;
 import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveFolder.DriveFileResult;
 import com.google.android.gms.drive.MetadataChangeSet;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -32,9 +34,12 @@ import java.io.Writer;
 /**
  * An activity to illustrate how to create a file.
  */
+
 public class CreateFileActivity extends BaseDemoActivity {
 
     private static final String TAG = "CreateFileActivity";
+    private ContactsManager contactsManager;
+    private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
 
     @Override
     public void onConnected(Bundle connectionHint) {
@@ -42,6 +47,17 @@ public class CreateFileActivity extends BaseDemoActivity {
         // create new contents resource
         Drive.DriveApi.newDriveContents(getGoogleApiClient())
                 .setResultCallback(driveContentsCallback);
+
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED)
+        {
+            requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, PERMISSIONS_REQUEST_READ_CONTACTS);
+        }
+
+        contactsManager = new ContactsManager();
+        ContentResolver contentResolver = getContentResolver();
+        contactsManager.setCursor(contentResolver);
+
     }
 
     final private ResultCallback<DriveContentsResult> driveContentsCallback = new
@@ -62,9 +78,9 @@ public class CreateFileActivity extends BaseDemoActivity {
                     OutputStream outputStream = driveContents.getOutputStream();
                     Writer writer = new OutputStreamWriter(outputStream);
                     try {
-                        //
-                        //todo there is the place where we gonna need to get data for backup
-                        //
+
+                        contactsManager.readContacts();
+
                         writer.write("Hello World!");
                         writer.close();
                     } catch (IOException e) {
