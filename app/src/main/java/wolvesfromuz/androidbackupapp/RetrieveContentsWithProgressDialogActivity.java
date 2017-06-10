@@ -1,8 +1,12 @@
 package wolvesfromuz.androidbackupapp;
 
+import android.Manifest;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.IntentSender.SendIntentException;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ProgressBar;
@@ -14,9 +18,19 @@ import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveFile.DownloadProgressListener;
 import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.OpenFileActivityBuilder;
+import com.google.gson.Gson;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Reader;
+import java.lang.reflect.Array;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
 
 /**
  * An activity to illustrate how to open contents and listen
@@ -40,13 +54,23 @@ public class RetrieveContentsWithProgressDialogActivity extends BaseDemoActivity
      * File that is selected with the open file activity.
      */
     private DriveId mSelectedFileDriveId;
-
+    private ContactsManager contactsManager;
+    private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
         setContentView(R.layout.activity_progress);
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
         mProgressBar.setMax(100);
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.WRITE_CONTACTS) != PackageManager.PERMISSION_GRANTED)
+        {
+            requestPermissions(new String[]{Manifest.permission.WRITE_CONTACTS}, PERMISSIONS_REQUEST_READ_CONTACTS);
+        }
+
+        contactsManager = new ContactsManager();
+        ContentResolver contentResolver = getContentResolver();
+        contactsManager.setCursor(contentResolver);
     }
 
     @Override
@@ -105,21 +129,27 @@ public class RetrieveContentsWithProgressDialogActivity extends BaseDemoActivity
                         return;
                     }
                     DriveContents contents = result.getDriveContents();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(contents.getInputStream()));
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(contents.getInputStream(), Charset.forName("UTF-8")));
                     StringBuilder builder = new StringBuilder();
                     String line;
+
                     try {
                         while((line =reader.readLine())!=null)
                         {
                             builder.append(line);
                         }
+
+                        JSONArray json = new JSONArray(builder.toString());
+                        contactsManager.deleteContacts();
+                        contactsManager.saveContacts(json);
                     } catch (IOException e) {
                         e.printStackTrace();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                    //
-                    //todo there is the place where you can use DATA from StringBuilder to make some action
-                    //
+
                     showMessage("File contents opened");
                 }
             };
+
 }

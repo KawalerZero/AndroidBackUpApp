@@ -1,9 +1,19 @@
 package wolvesfromuz.androidbackupapp;
 
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentResolver;
+import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.RemoteException;
 import android.provider.ContactsContract;
+import android.util.Log;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +46,7 @@ public class ContactsManager
        String Phone_CONTACT_ID = ContactsContract.CommonDataKinds.Phone.CONTACT_ID;
        String NUMBER = ContactsContract.CommonDataKinds.Phone.NUMBER;
        Uri EmailCONTENT_URI = ContactsContract.CommonDataKinds.Email.CONTENT_URI;
-       String EmailCONTENT_ID = ContactsContract.CommonDataKinds.Email._ID;
+       String EmailCONTENT_ID = ContactsContract.CommonDataKinds.Email.CONTACT_ID;
        String DATA = ContactsContract.CommonDataKinds.Email.DATA;
 
        cursor = contentResolver.query(CONTENT_URI, null, null, null, null);
@@ -58,7 +68,8 @@ public class ContactsManager
                    Cursor phoneCursor = contentResolver.query(PhoneCONTENT_URI, null, Phone_CONTACT_ID + " =?", new String[] {contract_id}, null);
                    while (phoneCursor.moveToNext())
                    {
-                       contact.phoneNos.add(phoneCursor.getString(phoneCursor.getColumnIndex(NUMBER)));
+                       String x = phoneCursor.getString(phoneCursor.getColumnIndex(NUMBER));
+                       contact.phoneNos.add(x);
                    }
                    phoneCursor.close();
 
@@ -67,9 +78,91 @@ public class ContactsManager
                    {
                        contact.emails.add(emailCursor.getString(emailCursor.getColumnIndex(DATA)));
                    }
-                   emailCursor.close();
+                  emailCursor.close();
                }
                contacts.add(contact);
+           }
+       }
+   }
+
+   public void saveContacts(JSONArray jsonArray) throws JSONException
+   {
+       for(int index = 0; index < jsonArray.length(); index++)
+       {
+           ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+           JSONObject jsonObject = (JSONObject) jsonArray.get(index);
+           JSONArray phones = jsonObject.getJSONArray("phoneNos");
+           JSONArray emails = jsonObject.getJSONArray("emails");
+
+           int rawContactInsertIndex = ops.size();
+
+           ops.add(ContentProviderOperation.newInsert(ContactsContract.RawContacts.CONTENT_URI)
+                   .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
+                   .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null).build());
+
+           ops.add(ContentProviderOperation
+                   .newInsert(ContactsContract.Data.CONTENT_URI)
+                   .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID,rawContactInsertIndex)
+                   .withValue(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+                   .withValue(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME, jsonObject.get("displayName"))
+                   .build());
+           for(int phoneIndex = 0; phoneIndex < phones.length(); phoneIndex++)
+           {
+               ops.add(ContentProviderOperation
+                       .newInsert(ContactsContract.Data.CONTENT_URI)
+                       .withValueBackReference(
+                               ContactsContract.Data.RAW_CONTACT_ID,   rawContactInsertIndex)
+                       .withValue(ContactsContract.Contacts.Data.MIMETYPE, ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+                       .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, phones.get(phoneIndex))
+                       .withValue(ContactsContract.CommonDataKinds.Phone.TYPE, ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE).build());
+           }
+
+
+           for(int emailIndex = 0; emailIndex < emails.length(); emailIndex++)
+           {
+               ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                       .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                       .withValue(ContactsContract.Data.MIMETYPE,
+                               ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE)
+                       .withValue(ContactsContract.CommonDataKinds.Email.DATA, emails.get(emailIndex))
+                       .withValue(ContactsContract.CommonDataKinds.Email.TYPE, ContactsContract.CommonDataKinds.Email.TYPE_WORK)
+                       .build());
+           }
+
+           try
+           {
+               contentResolver.applyBatch(ContactsContract.AUTHORITY, ops);
+           }
+           catch (RemoteException e)
+           {
+               Log.d("ContractManager", e.getMessage());
+           }
+           catch (OperationApplicationException e)
+           {
+               Log.d("ContractManager", e.getMessage());
+           }
+       }
+
+
+
+
+
+   }
+
+   public void deleteContacts()
+   {
+       Cursor cur = contentResolver.query(ContactsContract.Contacts.CONTENT_URI,
+               null, null, null, null);
+       while (cur.moveToNext()) {
+           try{
+               String lookupKey = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY));
+               Uri uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_LOOKUP_URI, lookupKey);
+               System.out.println("The uri is " + uri.toString());
+               contentResolver.delete(uri, null, null);
+           }
+           catch(Exception e)
+           {
+               System.out.println(e.getStackTrace());
            }
        }
    }

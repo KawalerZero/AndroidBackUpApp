@@ -1,5 +1,6 @@
 package wolvesfromuz.androidbackupapp;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -9,6 +10,12 @@ import java.util.List;
 public class Contact
 {
     public String displayName;
-    public List<String> phoneNos;
-    public List<String> emails;
+    public ArrayList<String> phoneNos;
+    public ArrayList<String> emails;
+
+    public Contact()
+    {
+        phoneNos = new ArrayList<>();
+        emails = new ArrayList<>();
+    }
 }

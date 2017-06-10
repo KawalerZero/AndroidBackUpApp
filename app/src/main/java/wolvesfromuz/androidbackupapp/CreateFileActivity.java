@@ -14,8 +14,17 @@
 
 package wolvesfromuz.androidbackupapp;
 
+import android.Manifest;
+import android.content.ContentResolver;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Xml;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
@@ -23,10 +32,19 @@ import com.google.android.gms.drive.DriveApi.DriveContentsResult;
 import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveFolder.DriveFileResult;
 import com.google.android.gms.drive.MetadataChangeSet;
+import com.google.gson.Gson;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.xmlpull.v1.XmlSerializer;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.sql.Time;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * An activity to illustrate how to create a file.
@@ -45,6 +63,14 @@ public class CreateFileActivity extends BaseDemoActivity {
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED)
+        {
+            requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, PERMISSIONS_REQUEST_READ_CONTACTS);
+        }
+
+        contactsManager = new ContactsManager();
+        ContentResolver contentResolver = getContentResolver();
+        contactsManager.setCursor(contentResolver);
 
         uploadingImage = (ImageView) findViewById(R.id.uploading_image);
         rotateAnimation = AnimationUtils.loadAnimation(getBaseContext(), R.anim.rotate);
@@ -76,17 +102,6 @@ public class CreateFileActivity extends BaseDemoActivity {
         // create new contents resource
         Drive.DriveApi.newDriveContents(getGoogleApiClient())
                 .setResultCallback(driveContentsCallback);
-
-
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED)
-        {
-            requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, PERMISSIONS_REQUEST_READ_CONTACTS);
-        }
-
-        contactsManager = new ContactsManager();
-        ContentResolver contentResolver = getContentResolver();
-        contactsManager.setCursor(contentResolver);
-
     }
 
     final private ResultCallback<DriveContentsResult> driveContentsCallback = new
@@ -109,15 +124,19 @@ public class CreateFileActivity extends BaseDemoActivity {
                     try {
 
                         contactsManager.readContacts();
-
-                        writer.write("Hello World!");
+                        Gson gson = new Gson();
+                        String json = gson.toJson(contactsManager.contacts);
+                        writer.write(json);
                         writer.close();
                     } catch (IOException e) {
                         Log.e(TAG, e.getMessage());
                     }
 
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+                    String currentDateandTime = sdf.format(new Date());
+
                     MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-                            .setTitle("New file")
+                            .setTitle("ContactsBackup" + currentDateandTime + ".json")
                             .setMimeType("text/plain")
                             .setStarred(true).build();
 
