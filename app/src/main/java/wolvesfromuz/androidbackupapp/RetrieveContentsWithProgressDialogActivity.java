@@ -40,6 +40,7 @@ public class RetrieveContentsWithProgressDialogActivity extends BaseDemoActivity
      */
     private static final int REQUEST_CODE_OPENER = 1;
 
+    private Boolean cancel;
     /**
      * Progress bar to show the current download progress of the file.
      */
@@ -55,6 +56,7 @@ public class RetrieveContentsWithProgressDialogActivity extends BaseDemoActivity
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
+        cancel=false;
         setContentView(R.layout.activity_progress);
         image = (ImageView) findViewById(R.id.uploading_image);
         rotateAnimation = AnimationUtils.loadAnimation(getBaseContext(), R.anim.rotate);
@@ -77,13 +79,25 @@ public class RetrieveContentsWithProgressDialogActivity extends BaseDemoActivity
             open();
             return;
         }
-//let the user decide
-        IntentSender intentSender = Drive.DriveApi
-                .newOpenFileActivityBuilder()
-                .setMimeType(new String[]{"text/plain"})
-                .build(getGoogleApiClient());
+        if(cancel)
+        {
+            finish();
+            Intent intent = new Intent(RetrieveContentsWithProgressDialogActivity.this, HomeActivity.class);
+            startActivity(intent);
+        }
+        IntentSender intentSender =null;
+        //let the user decide
+        if(!cancel) {
+             intentSender = Drive.DriveApi
+                    .newOpenFileActivityBuilder()
+                    .setMimeType(new String[]{"text/plain"})
+                    .build(getGoogleApiClient());
+            cancel = true;
+        }
         try {
-            startIntentSenderForResult(intentSender, REQUEST_CODE_OPENER, null, 0, 0, 0);
+            if(intentSender!=null) {
+                startIntentSenderForResult(intentSender, REQUEST_CODE_OPENER, null, 0, 0, 0);
+            }
         } catch (SendIntentException e) {
             Log.w(TAG, "Unable to send intent", e);
         }
