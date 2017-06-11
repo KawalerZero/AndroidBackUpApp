@@ -90,7 +90,7 @@ public class RetrieveContentsWithProgressDialogActivity extends BaseDemoActivity
         if(!cancel) {
              intentSender = Drive.DriveApi
                     .newOpenFileActivityBuilder()
-                    .setMimeType(new String[]{"text/plain"})
+                    .setMimeType(new String[]{"application/json"})
                     .build(getGoogleApiClient());
             cancel = true;
         }

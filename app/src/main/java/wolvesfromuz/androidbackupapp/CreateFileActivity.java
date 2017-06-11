@@ -129,7 +129,7 @@ public class CreateFileActivity extends BaseDemoActivity {
 
                     MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
                             .setTitle("ContactsBackup" + currentDateandTime + ".json")
-                            .setMimeType("text/plain")
+                            .setMimeType("application/json")
                             .setStarred(true).build();
 
                     // create a file on root folder
