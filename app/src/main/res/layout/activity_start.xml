@@ -13,5 +13,7 @@
         android:layout_height="299dp"
         android:layout_marginTop="100dp"
         android:layout_marginLeft="45dp"
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true"
         android:src="@drawable/loading" />
 </FrameLayout>

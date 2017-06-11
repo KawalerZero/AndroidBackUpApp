@@ -9,7 +9,9 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.ProgressBar;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveApi.DriveContentsResult;
@@ -18,19 +20,12 @@ import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveFile.DownloadProgressListener;
 import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.OpenFileActivityBuilder;
-import com.google.gson.Gson;
-
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Reader;
-import java.lang.reflect.Array;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 
 /**
  * An activity to illustrate how to open contents and listen
@@ -48,7 +43,8 @@ public class RetrieveContentsWithProgressDialogActivity extends BaseDemoActivity
     /**
      * Progress bar to show the current download progress of the file.
      */
-    private ProgressBar mProgressBar;
+    private ImageView image;
+    private Animation rotateAnimation;
 
     /**
      * File that is selected with the open file activity.
@@ -60,8 +56,8 @@ public class RetrieveContentsWithProgressDialogActivity extends BaseDemoActivity
     protected void onCreate(Bundle b) {
         super.onCreate(b);
         setContentView(R.layout.activity_progress);
-        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
-        mProgressBar.setMax(100);
+        image = (ImageView) findViewById(R.id.uploading_image);
+        rotateAnimation = AnimationUtils.loadAnimation(getBaseContext(), R.anim.rotate);
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.WRITE_CONTACTS) != PackageManager.PERMISSION_GRANTED)
         {
@@ -106,14 +102,28 @@ public class RetrieveContentsWithProgressDialogActivity extends BaseDemoActivity
     private void open() {
         // Reset progress dialog back to zero as we're
         // initiating an opening request.
-        mProgressBar.setProgress(0);
         DownloadProgressListener listener = new DownloadProgressListener() {
             @Override
             public void onProgress(long bytesDownloaded, long bytesExpected) {
                 // Update progress dialog with the latest progress.
                 int progress = (int)(bytesDownloaded*100/bytesExpected);
                 Log.d(TAG, String.format("Loading progress: %d percent", progress));
-                mProgressBar.setProgress(progress);
+
+                image.startAnimation(rotateAnimation);
+                rotateAnimation.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {}
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        finish();
+                        Intent intent = new Intent(RetrieveContentsWithProgressDialogActivity.this, HomeActivity.class);
+                        startActivity(intent);
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {}
+                });
             }
         };
         DriveFile driveFile =  mSelectedFileDriveId.asDriveFile();
@@ -151,5 +161,4 @@ public class RetrieveContentsWithProgressDialogActivity extends BaseDemoActivity
                     showMessage("File contents opened");
                 }
             };
-
 }

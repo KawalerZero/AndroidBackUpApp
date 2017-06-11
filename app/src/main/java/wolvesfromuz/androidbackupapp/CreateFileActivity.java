@@ -21,11 +21,9 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.Xml;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
-
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveApi.DriveContentsResult;
@@ -33,16 +31,10 @@ import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveFolder.DriveFileResult;
 import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.gson.Gson;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.xmlpull.v1.XmlSerializer;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 

@@ -1,6 +1,5 @@
 package wolvesfromuz.androidbackupapp;
 
-
 import android.os.Bundle;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;

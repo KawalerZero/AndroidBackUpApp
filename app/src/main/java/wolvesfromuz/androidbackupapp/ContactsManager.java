@@ -27,7 +27,6 @@ public class ContactsManager
     public ArrayList<Contact> contacts;
     private Contact contact;
     Cursor cursor;
-    int counter = 0;
     private ContentResolver contentResolver;
 
     public void setCursor(ContentResolver contentResolver)
@@ -53,7 +52,6 @@ public class ContactsManager
 
        if(cursor.getCount() > 0)
        {
-            counter = 0;
            while(cursor.moveToNext())
            {
                contact = new Contact();
@@ -142,11 +140,6 @@ public class ContactsManager
                Log.d("ContractManager", e.getMessage());
            }
        }
-
-
-
-
-
    }
 
    public void deleteContacts()
